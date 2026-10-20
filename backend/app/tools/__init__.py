@@ -1,0 +1,1 @@
+"""Safe simulated business tools."""

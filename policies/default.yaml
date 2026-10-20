@@ -1,0 +1,44 @@
+version: 1
+thresholds:
+  escalate: 30
+  block: 70
+global:
+  blocked_email_domains:
+  - competitor.com
+  - evil.com
+  internal_email_domains:
+  - company.in
+  sensitive_patterns:
+  - email
+  - phone
+  - aadhaar_like_12_digit
+  - pan_like
+  - salary_keywords
+  tools_requiring_approval:
+  - delete_record
+  bulk_record_limit: 100
+agents:
+  finance-agent:
+    allowed_tools:
+    - read_document
+    - query_database
+    - make_payment
+    - send_email
+    limits:
+      max_payment: 50000.0
+      hard_max_payment: 200000.0
+    rate_limit:
+      calls: 20
+      per_seconds: 10
+  hr-agent:
+    allowed_tools:
+    - read_document
+    - query_database
+    - send_email
+    - delete_record
+    limits:
+      max_payment: null
+      hard_max_payment: null
+    rate_limit:
+      calls: 20
+      per_seconds: 10

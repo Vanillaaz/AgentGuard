@@ -1710,7 +1710,7 @@ function App() {
                           <div style={{ fontSize: 28, marginBottom: 8 }}>🛡️</div>
                           <div style={{ fontWeight: 600, color: '#94a3b8' }}>No Interceptions Found</div>
                           <div style={{ fontSize: 12, marginTop: 4 }}>
-                            {searchQuery || agentFilter !== 'all' || decisionFilter !== 'all'
+                            {searchQuery || filterDecision !== 'ALL'
                               ? 'Try clearing the search or status filter.'
                               : 'Trigger an attack scenario or agent action to inspect live intercepted traffic.'}
                           </div>
@@ -2343,7 +2343,7 @@ function App() {
                   <div>[signal] zero-trust token active, cumulative risk score: {stats.blocked > 0 ? '70/100' : '15/100'}</div>
                   {events.slice(0, 3).map((e, idx) => (
                     <div key={idx} style={{ color: e.decision === 'BLOCK' ? '#f43f5e' : e.decision === 'ESCALATE' ? '#fbbf24' : '#34d399' }}>
-                      [{e.decision.toLowerCase()}] {e.agent_id} ➔ {e.tool}() (risk: {e.score}/100)
+                      [{e.decision ? e.decision.toLowerCase() : 'eval'}] {e.agent_id || 'agent'} ➔ {e.tool || 'action'}() (risk: {e.score ?? 0}/100)
                     </div>
                   ))}
                   <div>[ledger] sha-256 block chain: {chainVerify.valid ? `${chainVerify.verified_count} blocks VERIFIED intact` : 'TAMPER ALERT'}</div>
@@ -3287,5 +3287,57 @@ def guard_tool_call(agent_id: str, tool_name: str, arguments: dict):
   );
 }
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('AgentGuard Dashboard caught an error:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: '100vh', background: '#030712', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ maxWidth: 540, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(244,63,94,0.3)', borderRadius: 12, padding: 28, textAlign: 'center' }}>
+            <div style={{ fontSize: 44, marginBottom: 12 }}>🛡️</div>
+            <h2 style={{ fontFamily: 'var(--font-display, sans-serif)', fontSize: 22, fontWeight: 800, color: '#fb7185', marginBottom: 8 }}>
+              AgentGuard Safety Shield
+            </h2>
+            <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 16 }}>
+              A UI rendering exception was contained. Your runtime security gateway remains active and is protecting agent traffic.
+            </p>
+            <div style={{ background: 'rgba(0,0,0,0.6)', padding: 12, borderRadius: 8, fontSize: 11, fontFamily: 'monospace', color: '#fda4af', textAlign: 'left', overflowX: 'auto', marginBottom: 16, border: '1px solid rgba(244,63,94,0.2)' }}>
+              {this.state.error?.message || String(this.state.error)}
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button
+                onClick={() => window.location.reload()}
+                style={{ background: '#38bdf8', color: '#000', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 12 }}
+              >
+                Reload Dashboard
+              </button>
+              <button
+                onClick={() => { localStorage.clear(); window.location.reload(); }}
+                style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.15)', padding: '10px 16px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 12 }}
+              >
+                Reset Local Cache
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const root = createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);

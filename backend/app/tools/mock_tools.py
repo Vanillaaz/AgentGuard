@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from typing import Any
+from .email_outbox import queue_email
 
 # ── Seed data ─────────────────────────────────────────────────────────────────
 
@@ -178,18 +179,16 @@ def send_email(
     subject: str,
     body: str = "",
     attachments: list | None = None,
+    agent_id: str | None = None,
+    session_id: str | None = None,
+    approval_id: str | None = None,
     **_: Any,
 ) -> dict:
-    """Record an email send (simulates an SMTP/SaaS email gateway)."""
-    item = {
-        "type": "email",
-        "to": to,
-        "subject": subject,
-        "body_length": len(body),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "simulated": True,
-        "message": "Email recorded but NOT sent",
-    }
+    """Queue an allowed message in the persistent sandbox outbox."""
+    item = queue_email(
+        to, subject, body, attachments,
+        agent_id=agent_id, session_id=session_id, approval_id=approval_id,
+    )
     EFFECTS.append(item)
     return item
 
@@ -219,9 +218,23 @@ _TOOLS = {
 }
 
 
-def execute(tool: str, args: dict) -> Any:
+def execute(
+    tool: str,
+    args: dict,
+    *,
+    agent_id: str | None = None,
+    session_id: str | None = None,
+    approval_id: str | None = None,
+) -> Any:
     """Dispatch a tool call by name.  Returns an error dict for unknown tools."""
     fn = _TOOLS.get(tool)
     if fn is None:
         return {"error": f"unknown tool: {tool!r}"}
-    return fn(**args)
+    payload = dict(args)
+    if tool == "send_email":
+        payload.update({
+            "agent_id": agent_id,
+            "session_id": session_id,
+            "approval_id": approval_id,
+        })
+    return fn(**payload)

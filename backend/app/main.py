@@ -34,6 +34,7 @@ from .guard.injection import scan_output
 from .guard.policy import load_policy
 from .audit import write_event
 from .tools.mock_tools import execute
+from .tools.email_outbox import list_outbox
 
 app = FastAPI(
     title="AgentGuard",
@@ -135,7 +136,10 @@ async def tool_call(request: Request) -> dict:
         }
 
     # ALLOW: execute the tool and scan its output for prompt injection
-    raw_output = execute(request.tool, request.arguments)
+    raw_output = execute(
+        request.tool, request.arguments,
+        agent_id=request.agent_id, session_id=request.session_id,
+    )
     safe_output, scan = scan_output(raw_output)
 
     if scan.injection_detected:
@@ -222,9 +226,20 @@ def approvals_list() -> list[dict]:
 
 @app.post("/v1/approvals/{ident}/approve", dependencies=[Depends(_auth)])
 def approve(ident: str) -> dict:
-    if not resolve_approval(ident, "approved"):
+    approval = _approval_by_id(ident)
+    if approval is None or approval["status"] != "pending":
         raise HTTPException(404, "Approval not found")
-    return {"status": "approved"}
+    resolve_approval(ident, "approved")
+    arguments = json.loads(approval["arguments_json"])
+    result = execute(
+        approval["tool"], arguments,
+        agent_id=approval["agent_id"], session_id=approval["session_id"], approval_id=ident,
+    )
+    write_event(
+        approval["agent_id"], approval["session_id"], approval["tool"], arguments,
+        "APPROVED_EXECUTED", 0, [f"Human approval {ident} released the action"],
+    )
+    return {"status": "approved", "result": result}
 
 
 @app.post("/v1/approvals/{ident}/reject", dependencies=[Depends(_auth)])
@@ -232,6 +247,19 @@ def reject(ident: str) -> dict:
     if not resolve_approval(ident, "rejected"):
         raise HTTPException(404, "Approval not found")
     return {"status": "rejected"}
+
+
+def _approval_by_id(ident: str) -> dict | None:
+    c = connection()
+    row = c.execute("SELECT * FROM approvals WHERE id = ?", (ident,)).fetchone()
+    c.close()
+    return dict(row) if row else None
+
+
+@app.get("/v1/email-outbox", dependencies=[Depends(_auth)])
+def email_outbox(limit: int = 100) -> list[dict]:
+    """Show messages cleared by AgentGuard and awaiting a delivery connector."""
+    return list_outbox(limit)
 
 
 # ── Agent control (kill-switch) ───────────────────────────────────────────────
@@ -353,7 +381,7 @@ def agent_chat(payload: dict) -> dict:
         }
 
     # ALLOW: Execute safely
-    raw_output = execute(tool, args)
+    raw_output = execute(tool, args, agent_id=agent_id, session_id=session_id)
     safe_output, scan = scan_output(raw_output)
 
     if scan.injection_detected:

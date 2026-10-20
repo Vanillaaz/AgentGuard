@@ -3,13 +3,17 @@ from __future__ import annotations
 import os
 from .guard.engine import Request, evaluate
 from .tools.mock_tools import execute
+from .approvals import create as create_approval
 from .guard.injection import scan_output
 try:
     from mcp.server.fastmcp import FastMCP
     mcp=FastMCP('AgentGuard')
     def guarded(tool, **arguments):
         d=evaluate(Request(agent_id=os.getenv('AGENT_ID','finance-agent'),session_id=os.getenv('AGENT_SESSION_ID','mcp'),task=os.getenv('AGENT_TASK','Use business tools safely'),tool=tool,arguments=arguments))
-        output=execute(tool,arguments) if d.decision=='ALLOW' else None
+        if d.decision == 'ESCALATE':
+            approval_id = create_approval(d.event_id, os.getenv('AGENT_ID','finance-agent'), os.getenv('AGENT_SESSION_ID','mcp'), tool, arguments)
+            return {'decision': d.decision, 'reasons': d.reasons, 'result': None, 'approval_id': approval_id}
+        output=execute(tool,arguments,agent_id=os.getenv('AGENT_ID','finance-agent'),session_id=os.getenv('AGENT_SESSION_ID','mcp')) if d.decision=='ALLOW' else None
         if output is not None: output,_=scan_output(output)
         return {'decision':d.decision,'reasons':d.reasons,'result':output}
     @mcp.tool()

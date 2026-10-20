@@ -52,6 +52,7 @@ def _reset_state():
     c.execute("DELETE FROM events")
     c.execute("DELETE FROM agents")
     c.execute("DELETE FROM approvals")
+    c.execute("DELETE FROM email_outbox")
     c.commit()
     c.close()
 

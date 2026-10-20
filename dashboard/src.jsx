@@ -1344,11 +1344,12 @@ function App() {
             {/* Overview heading and grouped demo controls */}
             <div className="overview-heading-row">
               <div className="overview-heading">
+                <div className="command-eyebrow"><span className="command-pulse" /> Live control surface</div>
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800 }}>
-                  Security Operations Center
+                  Agent security, in context
                 </h2>
                 <div className="overview-subtitle">
-                  Autonomous Agent Runtime Safety & Inline Threat Interception
+                  Observe decisions, investigate exceptions, and keep autonomous work within policy.
                 </div>
               </div>
 

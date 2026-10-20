@@ -165,6 +165,25 @@ AgentGuard includes a standard Model Context Protocol (MCP) stdio server:
 }
 ```
 
+## First real workflow: HR email protection
+
+The current MVP is intentionally safe to run locally. A permitted email is
+written to the persistent AgentGuard outbox instead of being sent to an SMTP
+provider. A blocked email never reaches that outbox; an escalated one is queued
+only after an operator approves it.
+
+```text
+HR agent → AgentGuard MCP/API → policy decision → sandbox email outbox
+                                          ├── BLOCK: no message is queued
+                                          ├── ESCALATE: wait for an operator
+                                          └── ALLOW: queue for a delivery connector
+```
+
+Inspect reviewed mail at `GET /v1/email-outbox` using the normal API key. A
+production deployment should replace the outbox consumer with a provider such
+as Microsoft Graph or Gmail API, with provider credentials held only by that
+connector—not by the AI agent.
+
 ---
 
 ## Assumptions & Design Choices

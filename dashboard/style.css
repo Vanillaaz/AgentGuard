@@ -4,44 +4,44 @@
    ========================================================================== */
 
 :root {
-  --bg-darkest: #070a13;
-  --bg-canvas: #090e1a;
-  --bg-sidebar: #0b1120;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-card-hover: rgba(24, 35, 62, 0.85);
-  --bg-card-solid: #0f172a;
-  --bg-input: #090e1c;
+  --bg-darkest: #100d0b;
+  --bg-canvas: #17120e;
+  --bg-sidebar: #17110d;
+  --bg-card: rgba(35, 27, 21, 0.82);
+  --bg-card-hover: rgba(51, 39, 30, 0.9);
+  --bg-card-solid: #251c16;
+  --bg-input: #17110d;
   
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-card: rgba(255, 255, 255, 0.12);
-  --border-glow: rgba(56, 189, 248, 0.35);
+  --border-subtle: rgba(250, 235, 211, 0.11);
+  --border-card: rgba(250, 235, 211, 0.16);
+  --border-glow: rgba(226, 166, 79, 0.5);
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #f7f0e6;
+  --text-secondary: #c7baaa;
+  --text-muted: #8f8274;
 
-  --color-allow: #10b981;
-  --color-allow-bg: rgba(16, 185, 129, 0.12);
-  --color-allow-border: rgba(16, 185, 129, 0.35);
-  --color-allow-glow: rgba(16, 185, 129, 0.25);
+  --color-allow: #7fb38a;
+  --color-allow-bg: rgba(127, 179, 138, 0.13);
+  --color-allow-border: rgba(127, 179, 138, 0.42);
+  --color-allow-glow: rgba(127, 179, 138, 0.2);
 
-  --color-block: #f43f5e;
-  --color-block-bg: rgba(244, 63, 94, 0.14);
-  --color-block-border: rgba(244, 63, 94, 0.35);
-  --color-block-glow: rgba(244, 63, 94, 0.25);
+  --color-block: #e56d5d;
+  --color-block-bg: rgba(229, 109, 93, 0.14);
+  --color-block-border: rgba(229, 109, 93, 0.4);
+  --color-block-glow: rgba(229, 109, 93, 0.22);
 
-  --color-escalate: #f59e0b;
-  --color-escalate-bg: rgba(245, 158, 11, 0.14);
-  --color-escalate-border: rgba(245, 158, 11, 0.35);
-  --color-escalate-glow: rgba(245, 158, 11, 0.25);
+  --color-escalate: #d8aa58;
+  --color-escalate-bg: rgba(216, 170, 88, 0.14);
+  --color-escalate-border: rgba(216, 170, 88, 0.42);
+  --color-escalate-glow: rgba(216, 170, 88, 0.2);
 
-  --color-shadow: #818cf8;
-  --color-shadow-bg: rgba(129, 140, 248, 0.14);
+  --color-shadow: #b598d5;
+  --color-shadow-bg: rgba(181, 152, 213, 0.14);
 
-  --primary: #38bdf8;
-  --primary-hover: #0ea5e9;
-  --primary-glow: rgba(56, 189, 248, 0.3);
-  --accent-orange: #f97316;
+  --primary: #e2a64f;
+  --primary-hover: #f0bd6c;
+  --primary-glow: rgba(226, 166, 79, 0.28);
+  --accent-orange: #d9784c;
 
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Outfit', var(--font-sans);
@@ -63,9 +63,9 @@
 body {
   background-color: var(--bg-darkest);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.07) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(226, 166, 79, 0.13) 0px, transparent 46%),
+    radial-gradient(at 100% 0%, rgba(181, 152, 213, 0.1) 0px, transparent 44%),
+    radial-gradient(at 50% 100%, rgba(127, 179, 138, 0.07) 0px, transparent 45%);
   background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -1840,4 +1840,94 @@ body {
   background: var(--primary);
   color: white;
   border-color: var(--primary);
+}
+
+/* ======================================================================
+   NIGHT-SHIFT THEME — a warmer, quieter visual system for operations work
+   ====================================================================== */
+.soc-sidebar {
+  background: linear-gradient(180deg, rgba(29, 21, 16, .99), rgba(18, 14, 11, .99));
+}
+
+.sidebar-brand { border-bottom-color: rgba(226, 166, 79, .16); }
+.brand-icon {
+  background: linear-gradient(145deg, #d17d4d, #9b6eaf);
+  box-shadow: 0 8px 24px rgba(209, 125, 77, .28);
+}
+.brand-sub { color: #dcb56f; }
+.nav-item.active {
+  background: rgba(226, 166, 79, .12);
+  border-color: rgba(226, 166, 79, .45);
+  color: #f3c978;
+  box-shadow: inset 3px 0 0 #e2a64f, 0 8px 22px rgba(0, 0, 0, .15);
+}
+.nav-item.active .nav-badge { background: #e2a64f; color: #21170f; }
+.nav-item:hover { background: rgba(247, 240, 230, .055); color: #f7f0e6; }
+
+.soc-topbar {
+  background: linear-gradient(105deg, rgba(42, 31, 24, .9), rgba(31, 24, 20, .86));
+  border-color: rgba(231, 202, 155, .14);
+}
+.search-box:focus-within { border-color: rgba(226, 166, 79, .7); box-shadow: 0 0 0 3px rgba(226, 166, 79, .1); }
+.ticker-pill.total { background: #c66c43; }
+.ticker-pill.critical { background: rgba(229, 109, 93, .15); border-color: rgba(229, 109, 93, .35); color: #f1a294; }
+.ticker-pill.high { background: rgba(216, 170, 88, .14); color: #e8c47e; }
+.status-live-tag { color: #a8d2ab; background: rgba(127, 179, 138, .1); border-color: rgba(127, 179, 138, .3); }
+.pulse-dot { background: #7fb38a; box-shadow: 0 0 8px #7fb38a; }
+.switch-btn.active-enforce { color: #f1d6a1; border-color: rgba(226, 166, 79, .5); background: rgba(226, 166, 79, .1); }
+
+.command-eyebrow {
+  align-items: center;
+  color: #d8aa58;
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  gap: 7px;
+  letter-spacing: .12em;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+.command-pulse { width: 7px; height: 7px; border-radius: 50%; background: #7fb38a; box-shadow: 0 0 0 4px rgba(127, 179, 138, .12); animation: commandPulse 2.8s ease-in-out infinite; }
+@keyframes commandPulse { 50% { box-shadow: 0 0 0 7px rgba(127, 179, 138, 0); } }
+
+.overview-actions { background: rgba(23, 17, 13, .52); border-color: rgba(226, 166, 79, .22); }
+.actions-label { color: #b9a28a; }
+.btn-primary { background: #d17d4d; border-color: #d17d4d; box-shadow: 0 8px 20px rgba(209, 125, 77, .18); }
+.btn-primary:hover { background: #e09260; border-color: #e09260; }
+.demo-safe-btn { color: #d8c98b; }
+.demo-attack-btn { border-color: rgba(229, 109, 93, .52); color: #f1a294; }
+
+.soc-stat-card, .score-card, .tools-status-card {
+  background: linear-gradient(145deg, rgba(43, 33, 26, .88), rgba(29, 23, 19, .9));
+  border-color: rgba(247, 240, 230, .1);
+}
+.soc-stat-card { animation: surfaceIn .5s both; }
+.soc-stat-card:nth-child(2) { animation-delay: .06s; }
+.soc-stat-card:nth-child(3) { animation-delay: .12s; }
+.soc-stat-card:nth-child(4) { animation-delay: .18s; }
+@keyframes surfaceIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.soc-stat-card:hover { border-color: rgba(226, 166, 79, .28); transform: translateY(-2px); transition: transform .2s ease, border-color .2s ease; }
+.card-title { color: #ac9b89; }
+.card-subtext, .overview-subtitle, .incident-card-context, .incident-meta { color: #b7a998; }
+.score-big { color: #e2a64f; }
+.score-fill { background: linear-gradient(90deg, #c66c43, #d8aa58) !important; }
+.event-matrix-grid .matrix-cell { background: rgba(226, 166, 79, .12); }
+.matrix-cell.active { background: #d8aa58; box-shadow: 0 0 7px rgba(216, 170, 88, .7); }
+.matrix-cell.warn { background: #c66c43; }
+.matrix-cell.danger { background: #e56d5d; box-shadow: 0 0 7px rgba(229, 109, 93, .55); }
+.health-bar-pill { box-shadow: 0 0 8px rgba(127, 179, 138, .25); }
+
+.incident-card { border-color: rgba(226, 166, 79, .24); background: linear-gradient(110deg, rgba(51, 33, 25, .92), rgba(34, 25, 21, .92)); }
+.incident-count-pill { background: rgba(229, 109, 93, .14); border-color: rgba(229, 109, 93, .4); color: #f1a294; }
+.incident-item-row { background: rgba(247, 240, 230, .028); }
+.incident-item-row:hover { background: rgba(226, 166, 79, .08); border-color: rgba(226, 166, 79, .42); }
+
+/* Keep semantic color only for the three decision states, not the whole UI. */
+.badge-allow, .decision-ALLOW, .incident-badge.resolved { color: #a8d2ab; }
+.badge-block, .decision-BLOCK, .incident-badge.critical { color: #f1a294; }
+.badge-escalate, .decision-ESCALATE, .incident-badge.high { color: #e8c47e; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }

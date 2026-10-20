@@ -320,6 +320,16 @@ function App() {
   const [copiedId, setCopiedId] = useState(null);
 
   const wsRef = useRef(null);
+  const copilotEndRef = useRef(null);
+  const testbenchEndRef = useRef(null);
+
+  useEffect(() => {
+    copilotEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  useEffect(() => {
+    testbenchEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [testbenchMessages, isAgentThinking]);
 
   const apiBase = window.location.port === '5173' ? 'http://localhost:8000' : window.location.origin;
   const wsBase = window.location.port === '5173'
@@ -366,6 +376,10 @@ function App() {
     let isMounted = true;
     let ws;
 
+    const pollInterval = setInterval(() => {
+      if (isMounted) refreshAll();
+    }, 12000);
+
     const connectWs = () => {
       try {
         ws = new WebSocket(`${wsBase}/v1/events`);
@@ -399,6 +413,7 @@ function App() {
     connectWs();
     return () => {
       isMounted = false;
+      clearInterval(pollInterval);
       if (ws) ws.close();
     };
   }, [apiKey]);
@@ -1278,7 +1293,7 @@ function App() {
             <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520 }}>
               <div className="modal-head">
                 <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  🛡️ Security Posture Optimizer (Score: 847/1000)
+                  🛡️ Security Posture Optimizer (Score: {postureScore}/1000)
                 </h3>
                 <button className="close-btn" onClick={() => setScoreOptimizerModal(false)}>×</button>
               </div>
@@ -1689,33 +1704,52 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredEvents.map((evt) => {
-                      const reasons = Array.isArray(evt.reasons)
-                        ? evt.reasons
-                        : typeof evt.reasons_json === 'string'
-                        ? JSON.parse(evt.reasons_json || '[]')
-                        : [];
-                      return (
-                        <tr key={evt.id || evt.event_id || Math.random()} onClick={() => setSelectedEvent(evt)}>
-                          <td style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                            {evt.timestamp ? new Date(evt.timestamp).toLocaleTimeString() : 'now'}
-                          </td>
-                          <td><span className="agent-tag">{evt.agent_id}</span></td>
-                          <td><span className="tool-signature">{evt.tool}()</span></td>
-                          <td>
-                            <span className={`decision-badge ${evt.shadow ? 'SHADOW' : evt.decision}`}>
-                              {evt.shadow ? 'SHADOW' : evt.decision}
-                            </span>
-                          </td>
-                          <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                            {evt.score ?? 0}/100
-                          </td>
-                          <td style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
-                            {reasons[0] || 'Allowed by zero-trust policy'}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {filteredEvents.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: '36px 16px', color: 'var(--text-muted)' }}>
+                          <div style={{ fontSize: 28, marginBottom: 8 }}>🛡️</div>
+                          <div style={{ fontWeight: 600, color: '#94a3b8' }}>No Interceptions Found</div>
+                          <div style={{ fontSize: 12, marginTop: 4 }}>
+                            {searchQuery || agentFilter !== 'all' || decisionFilter !== 'all'
+                              ? 'Try clearing the search or status filter.'
+                              : 'Trigger an attack scenario or agent action to inspect live intercepted traffic.'}
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredEvents.map((evt, idx) => {
+                        let reasons = [];
+                        if (Array.isArray(evt.reasons)) {
+                          reasons = evt.reasons;
+                        } else if (typeof evt.reasons_json === 'string') {
+                          try {
+                            reasons = JSON.parse(evt.reasons_json || '[]');
+                          } catch (e) {
+                            reasons = [];
+                          }
+                        }
+                        return (
+                          <tr key={evt.id || evt.event_id || `${evt.agent_id}-${evt.timestamp}-${idx}`} onClick={() => setSelectedEvent(evt)}>
+                            <td style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                              {evt.timestamp ? new Date(evt.timestamp).toLocaleTimeString() : 'now'}
+                            </td>
+                            <td><span className="agent-tag">{evt.agent_id}</span></td>
+                            <td><span className="tool-signature">{evt.tool}()</span></td>
+                            <td>
+                              <span className={`decision-badge ${evt.shadow ? 'SHADOW' : evt.decision}`}>
+                                {evt.shadow ? 'SHADOW' : evt.decision}
+                              </span>
+                            </td>
+                            <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                              {evt.score ?? 0}/100
+                            </td>
+                            <td style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
+                              {reasons[0] || 'Allowed by zero-trust policy'}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -1761,44 +1795,57 @@ function App() {
               <div className="discovered-agents-box">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span className="card-title">Discovered Agents</span>
-                  <span style={{ fontSize: 10, color: '#38bdf8' }}>8 Active</span>
+                  <span style={{ fontSize: 10, color: '#38bdf8' }}>{agents.length || 8} Monitored</span>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {[
-                    { id: 'GPT-4o', status: 'healthy', label: 'Healthy' },
-                    { id: 'Claude', status: 'healthy', label: 'Healthy' },
-                    { id: 'Gemini', status: 'healthy', label: 'Healthy' },
-                    { id: 'finance-agent', status: 'healthy', label: 'Monitored' },
-                    { id: 'hr-agent', status: 'critical', label: 'Threat Flagged' },
-                    { id: 'Agent-09', status: 'warning', label: 'Warning (1 issue)' },
-                    { id: 'srv-47x', status: 'critical', label: 'Critical (3 issues)' },
-                    { id: 'Tool-svc', status: 'warning', label: 'Warning (1 issue)' },
-                    { id: 'MCP-ext', status: 'critical', label: 'Critical (2 issues)' },
-                  ].map((ag) => (
-                    <div key={ag.id} className="agent-status-row">
-                      <span style={{ fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{ag.id}</span>
-                      <span className={`agent-status-pill ${ag.status}`}>{ag.label}</span>
-                    </div>
-                  ))}
+                  {(agents && agents.length > 0 ? agents : [
+                    { agent_id: 'finance-agent', status: 'active', blocked: 0 },
+                    { agent_id: 'hr-agent', status: 'active', blocked: 1 },
+                    { agent_id: 'support-bot', status: 'active', blocked: 0 },
+                    { agent_id: 'billing-service', status: 'active', blocked: 0 },
+                  ]).map((ag) => {
+                    const id = ag.agent_id || ag.id;
+                    const isKilled = ag.status === 'killed';
+                    const isPaused = ag.status === 'paused';
+                    const hasThreats = (ag.blocked || 0) > 0;
+                    const statusClass = isKilled ? 'critical' : (isPaused || hasThreats) ? 'warning' : 'healthy';
+                    const label = isKilled
+                      ? 'Terminated'
+                      : isPaused
+                      ? 'Paused'
+                      : hasThreats
+                      ? `Threat Flagged (${ag.blocked})`
+                      : 'Monitored';
+                    return (
+                      <div key={id} className="agent-status-row">
+                        <span style={{ fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{id}</span>
+                        <span className={`agent-status-pill ${statusClass}`}>{label}</span>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div style={{ marginTop: 8, borderTop: '1px solid var(--border-subtle)', paddingTop: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
-                    <span style={{ color: 'var(--text-muted)' }}>New scans:</span>
-                    <strong style={{ color: '#38bdf8' }}>2.28 kB/s</strong>
+                    <span style={{ color: 'var(--text-muted)' }}>Evaluated Calls:</span>
+                    <strong style={{ color: '#38bdf8' }}>{events.length}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Data Flows:</span>
-                    <strong style={{ color: '#10b981' }}>3.5 10ms</strong>
+                    <span style={{ color: 'var(--text-muted)' }}>Intercept Rate:</span>
+                    <strong style={{ color: events.filter(e => e.decision === 'BLOCK').length > 0 ? '#f43f5e' : '#10b981' }}>
+                      {events.length ? ((events.filter(e => e.decision === 'BLOCK').length / events.length) * 100).toFixed(1) : '0.0'}%
+                    </strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Total Traffic:</span>
-                    <strong style={{ color: '#f8fafc' }}>8.4 GB/h</strong>
+                    <span style={{ color: 'var(--text-muted)' }}>Escrow Holds:</span>
+                    <strong style={{ color: '#fbbf24' }}>{approvals.length}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Avg Latency:</span>
-                    <strong style={{ color: '#34d399' }}>45ms</strong>
+                    <span style={{ color: 'var(--text-muted)' }}>SHA-256 Ledger:</span>
+                    <strong style={{ color: chainVerify.valid ? '#34d399' : '#f43f5e' }}>
+                      {chainVerify.valid ? `${chainVerify.verified_count} Blocks Valid` : 'Tamper Alert'}
+                    </strong>
                   </div>
                 </div>
               </div>
@@ -1942,7 +1989,7 @@ function App() {
                   ● OFFENSIVE MODE
                 </span>
                 <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                  SYSTEM ONLINE • 10/02/2026
+                  SYSTEM ONLINE • LIVE TELEMETRY
                 </span>
               </div>
             </div>
@@ -2292,10 +2339,14 @@ function App() {
                 {/* Live Terminal Stream Box */}
                 <div className="terminal-stream-box">
                   <div>[ok] context.scope = agent_runtime_gateway</div>
-                  <div>[scan] posture summary, threat forecast, incidents, and vulnerabilities</div>
+                  <div>[scan] posture score: {postureScore}/1000 | monitored: {agents.length || 8} agents</div>
                   <div>[signal] zero-trust token active, cumulative risk score: {stats.blocked > 0 ? '70/100' : '15/100'}</div>
-                  <div>[action] prioritize critical findings and high-risk items first</div>
-                  <div>[ledger] sha-256 block sealed and linked to tamper-evident audit trail</div>
+                  {events.slice(0, 3).map((e, idx) => (
+                    <div key={idx} style={{ color: e.decision === 'BLOCK' ? '#f43f5e' : e.decision === 'ESCALATE' ? '#fbbf24' : '#34d399' }}>
+                      [{e.decision.toLowerCase()}] {e.agent_id} ➔ {e.tool}() (risk: {e.score}/100)
+                    </div>
+                  ))}
+                  <div>[ledger] sha-256 block chain: {chainVerify.valid ? `${chainVerify.verified_count} blocks VERIFIED intact` : 'TAMPER ALERT'}</div>
                 </div>
               </div>
 
@@ -2372,6 +2423,7 @@ function App() {
                         {msg.text}
                       </div>
                     ))}
+                    <div ref={copilotEndRef} />
                   </div>
 
                   <div className="chat-input-row">
@@ -2688,6 +2740,7 @@ function App() {
                   </div>
                 </div>
               )}
+              <div ref={testbenchEndRef} />
             </div>
 
             {/* Input Bar */}

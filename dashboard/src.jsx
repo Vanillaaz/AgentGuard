@@ -2301,146 +2301,137 @@ function App() {
                   Polis AI Command Console
                 </h2>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                  Live organization metrics below are read from your data (not decorative). Open the chat for detailed Q&A.
+                  Interactive SecOps AI & Live Zero-Trust Radar Telemetry
                 </div>
               </div>
 
-              <button
-                className="btn-primary"
-                onClick={() => setCopilotOpen(!copilotOpen)}
-              >
-                <Icons.Bot /> {copilotOpen ? 'Hide Copilot Drawer' : 'Open Copilot Chat'}
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="ticker-pill active" style={{ fontSize: 12, padding: '5px 12px' }}>
+                  ● POLIS COPILOT ONLINE
+                </span>
+              </div>
             </div>
 
-            <div className="radar-console-layout">
+            <div className="radar-console-layout" style={{ gridTemplateColumns: '1fr 1fr', gap: 20 }}>
               {/* Left Column: Live AI Feed Radar & Terminal */}
-              <div className="radar-circle-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <span className="card-title">Live AI Feed</span>
-                  <span style={{ fontSize: 11, color: '#38bdf8' }}>Organization Bound</span>
-                </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div className="radar-circle-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
+                    <span className="card-title">Live Zero-Trust Radar</span>
+                    <span style={{ fontSize: 11, color: '#38bdf8' }}>Active Gateway Telemetry</span>
+                  </div>
 
-                {/* Glowing Concentric Circular Radar */}
-                <div className="concentric-radar">
-                  <div className="radar-sweep-beam" />
-                  {/* Sonic Equalizer Bars in the center */}
-                  <div className="sonic-equalizer">
-                    {Array.from({ length: 14 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="eq-bar"
-                        style={{ animationDelay: `${i * 0.08}s` }}
-                      />
+                  {/* Glowing Concentric Circular Radar */}
+                  <div className="concentric-radar">
+                    <div className="radar-sweep-beam" />
+                    {/* Sonic Equalizer Bars in the center */}
+                    <div className="sonic-equalizer">
+                      {Array.from({ length: 14 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="eq-bar"
+                          style={{ animationDelay: `${i * 0.08}s` }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Live Terminal Stream Box */}
+                  <div className="terminal-stream-box" style={{ width: '100%', marginTop: 12 }}>
+                    <div>[ok] context.scope = agent_runtime_gateway</div>
+                    <div>[scan] posture score: {postureScore}/1000 | monitored: {agents.length || 8} agents</div>
+                    <div>[signal] zero-trust token active, cumulative risk score: {stats.blocked > 0 ? '70/100' : '15/100'}</div>
+                    {events.slice(0, 3).map((e, idx) => (
+                      <div key={idx} style={{ color: e.decision === 'BLOCK' ? '#f43f5e' : e.decision === 'ESCALATE' ? '#fbbf24' : '#34d399' }}>
+                        [{e.decision ? e.decision.toLowerCase() : 'eval'}] {e.agent_id || 'agent'} ➔ {e.tool || 'action'}() (risk: {e.score ?? 0}/100)
+                      </div>
                     ))}
+                    <div>[ledger] sha-256 block chain: {chainVerify.valid ? `${chainVerify.verified_count} blocks VERIFIED intact` : 'TAMPER ALERT'}</div>
                   </div>
                 </div>
 
-                {/* Live Terminal Stream Box */}
-                <div className="terminal-stream-box">
-                  <div>[ok] context.scope = agent_runtime_gateway</div>
-                  <div>[scan] posture score: {postureScore}/1000 | monitored: {agents.length || 8} agents</div>
-                  <div>[signal] zero-trust token active, cumulative risk score: {stats.blocked > 0 ? '70/100' : '15/100'}</div>
-                  {events.slice(0, 3).map((e, idx) => (
-                    <div key={idx} style={{ color: e.decision === 'BLOCK' ? '#f43f5e' : e.decision === 'ESCALATE' ? '#fbbf24' : '#34d399' }}>
-                      [{e.decision ? e.decision.toLowerCase() : 'eval'}] {e.agent_id || 'agent'} ➔ {e.tool || 'action'}() (risk: {e.score ?? 0}/100)
-                    </div>
-                  ))}
-                  <div>[ledger] sha-256 block chain: {chainVerify.valid ? `${chainVerify.verified_count} blocks VERIFIED intact` : 'TAMPER ALERT'}</div>
-                </div>
-              </div>
-
-              {/* Right Column: Organization Posture & Guardrails */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {/* Organization Posture & Guardrails Telemetry */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div className="soc-stat-card">
                     <span className="card-title">Posture Score</span>
                     <div className="card-number" style={{ color: '#10b981', fontSize: 24 }}>{postureScore}/1000</div>
-                    <div className="card-subtext">Strong security boundary</div>
+                    <div className="card-subtext">Strong zero-trust boundary</div>
                   </div>
 
                   <div className="soc-stat-card">
-                    <span className="card-title">Guardrails</span>
-                    <div className="card-number" style={{ color: '#38bdf8', fontSize: 24 }}>Strict</div>
-                    <div className="card-subtext">Zero-trust answers & RBAC</div>
+                    <span className="card-title">Enforcement Guardrails</span>
+                    <div className="card-number" style={{ color: '#38bdf8', fontSize: 24 }}>Active Strict</div>
+                    <div className="card-subtext">STS 60s tokens & SHA-256</div>
                   </div>
                 </div>
+              </div>
 
-                <div className="soc-stat-card">
-                  <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    🛡️ Secure by Design
-                  </h4>
-                  <ul style={{ fontSize: 11, color: 'var(--text-secondary)', paddingLeft: 18, lineHeight: 1.6 }}>
-                    <li>Organization-bound context and RBAC hints</li>
-                    <li>Prompt-injection filtering and refusal policy</li>
-                    <li>Chat actions are explicit and permission-checked</li>
-                    <li>Ephemeral tokens expire in 60s to prevent replay</li>
-                  </ul>
+              {/* Right Column: Embedded Polis AI Copilot Console */}
+              <div className="copilot-chat-drawer" style={{ height: '100%', minHeight: 560, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 22 }}>🤖</span>
+                    <div>
+                      <strong>Polis AI Copilot</strong>
+                      <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Organization Intelligence Q&A & Threat Reasoning</div>
+                    </div>
+                  </div>
+                  <span className="tab-badge" style={{ fontSize: 10, color: '#38bdf8' }}>SOC Assessor</span>
                 </div>
 
-                <div className="soc-stat-card">
-                  <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>
-                    💡 Prompt Starters
-                  </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div className="chat-messages-container" style={{ flex: 1, maxHeight: 380 }}>
+                  {chatMessages.map((msg, i) => (
+                    <div key={i} className={`chat-msg ${msg.sender}`}>
+                      {msg.text}
+                    </div>
+                  ))}
+                  <div ref={copilotEndRef} />
+                </div>
+
+                {/* Prompt Starters */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '6px 0' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Quick Prompts
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     <button
                       className="icon-btn"
-                      style={{ textAlign: 'left', fontSize: 11 }}
+                      style={{ fontSize: 11, padding: '4px 8px' }}
                       onClick={() => handleSendChat('Compare my current posture score and open critical risks.')}
                     >
-                      "Compare my posture score and open critical risks."
+                      "Compare posture score & risks"
                     </button>
                     <button
                       className="icon-btn"
-                      style={{ textAlign: 'left', fontSize: 11 }}
+                      style={{ fontSize: 11, padding: '4px 8px' }}
                       onClick={() => handleSendChat('Verify ledger integrity and show blocked injection attempts.')}
                     >
-                      "Verify ledger integrity and show blocked threats."
+                      "Verify ledger integrity"
+                    </button>
+                    <button
+                      className="icon-btn"
+                      style={{ fontSize: 11, padding: '4px 8px' }}
+                      onClick={() => handleSendChat('Explain zero-trust ephemeral tokens and RBAC boundaries.')}
+                    >
+                      "Explain STS tokens & RBAC"
                     </button>
                   </div>
+                </div>
+
+                <div className="chat-input-row" style={{ marginTop: 'auto' }}>
+                  <input
+                    className="chat-input"
+                    placeholder="Ask Polis about posture, threats, rules, or hash chain..."
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
+                  />
+                  <button className="btn-primary" onClick={() => handleSendChat()}>
+                    Send
+                  </button>
                 </div>
               </div>
             </div>
-
-            {/* Floating Copilot Chat Drawer */}
-            {copilotOpen && (
-              <div style={{ marginTop: 20 }}>
-                <div className="copilot-chat-drawer">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 10 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 18 }}>🤖</span>
-                      <div>
-                        <strong>Polis AI Copilot</strong>
-                        <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Organization Intelligence Q&A</div>
-                      </div>
-                    </div>
-                    <button className="close-btn" onClick={() => setCopilotOpen(false)}>×</button>
-                  </div>
-
-                  <div className="chat-messages-container">
-                    {chatMessages.map((msg, i) => (
-                      <div key={i} className={`chat-msg ${msg.sender}`}>
-                        {msg.text}
-                      </div>
-                    ))}
-                    <div ref={copilotEndRef} />
-                  </div>
-
-                  <div className="chat-input-row">
-                    <input
-                      className="chat-input"
-                      placeholder="Ask Polis about posture, threats, rules..."
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
-                    />
-                    <button className="btn-primary" onClick={() => handleSendChat()}>
-                      Send
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
 

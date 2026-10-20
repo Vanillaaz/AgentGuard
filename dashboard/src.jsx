@@ -1172,17 +1172,10 @@ function App() {
               />
             </div>
 
-            <button
-              className="btn-guided-tour"
-              onClick={() => goToTourStep(tourStep > 0 ? tourStep : 1)}
-            >
-              ✨ {tourStep > 0 ? `Tour Step ${tourStep}/4` : 'Start Guided Demo Tour'}
-            </button>
-
             <div className="threat-stats-ticker">
-              <span className="ticker-pill total">Total Calls {stats.total}</span>
-              <span className="ticker-pill critical">Blocked {stats.blocked}</span>
-              <span className="ticker-pill high">Escalated {approvals.length}</span>
+              <span className="ticker-pill total" title="Gateway evaluations in the current session">{stats.total} evaluations</span>
+              <span className="ticker-pill critical" title="Actions blocked by policy">{stats.blocked} blocked</span>
+              <span className="ticker-pill high" title="Actions waiting for human review">{approvals.length} pending review</span>
             </div>
           </div>
 
@@ -1210,6 +1203,13 @@ function App() {
               style={{ padding: '6px 10px' }}
             >
               <Icons.Refresh />
+            </button>
+
+            <button
+              className="btn-guided-tour topbar-tour"
+              onClick={() => goToTourStep(tourStep > 0 ? tourStep : 1)}
+            >
+              ✨ {tourStep > 0 ? `Tour ${tourStep}/4` : 'Guided demo'}
             </button>
 
             <button
@@ -1341,35 +1341,35 @@ function App() {
             ===================================================================== */}
         {activeNav === 'overview' && (
           <div>
-            {/* Top Controls Bar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div>
+            {/* Overview heading and grouped demo controls */}
+            <div className="overview-heading-row">
+              <div className="overview-heading">
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800 }}>
                   Security Operations Center
                 </h2>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                <div className="overview-subtitle">
                   Autonomous Agent Runtime Safety & Inline Threat Interception
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div className="overview-actions">
+                <span className="actions-label">Demo controls</span>
                 <button
-                  className={`icon-btn ${tourStep === 1 ? 'glowing-tour-target' : ''}`}
+                  className={`icon-btn demo-safe-btn ${tourStep === 1 ? 'glowing-tour-target' : ''}`}
                   onClick={() => handleRunScenario('normal_task')}
                   title="Simulates a legitimate invoice reading task that gets ALLOWED"
                 >
-                  ▶ Test Safe Call
+                  <Icons.Play /> Test safe call
                 </button>
                 <button
-                  className="icon-btn"
-                  style={{ borderColor: 'rgba(244,63,94,0.4)', color: '#fb7185' }}
+                  className="icon-btn demo-attack-btn"
                   onClick={() => handleRunScenario('prompt_injection')}
                   title="Simulates an invoice with hidden prompt injection that gets BLOCKED"
                 >
-                  ⚡ Fire Poisoned Document
+                  <Icons.Zap /> Simulate attack
                 </button>
                 <button
-                  className="btn-primary"
+                  className="btn-primary report-btn"
                   onClick={handleExportReport}
                   title="Generates and downloads a real JSON audit report"
                 >
@@ -1381,15 +1381,15 @@ function App() {
             {/* Row 1: 4 Key Telemetry Cards */}
             <div className="soc-overview-grid">
               {/* Card 1: Threat Detection with Red Area Sparkline */}
-              <div className="soc-stat-card">
+              <div className="soc-stat-card telemetry-card">
                 <div className="card-top">
-                  <span className="card-title">Threats Intercepted</span>
+                  <span className="card-title">Blocked threats</span>
                   <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>•••</span>
                 </div>
                 <div className="card-number" style={{ color: '#f43f5e' }}>
                   {stats.blocked}
                 </div>
-                <div className="card-subtext">Active attacks & violations blocked</div>
+                <div className="card-subtext">Policy violations stopped by the gateway</div>
                 {/* Red Curved Line Sparkline SVG */}
                 <svg className="sparkline-svg" viewBox="0 0 200 40">
                   <defs>
@@ -1413,9 +1413,9 @@ function App() {
               </div>
 
               {/* Card 2: Security Events with Heatmap Grid Matrix */}
-              <div className="soc-stat-card">
+              <div className="soc-stat-card telemetry-card">
                 <div className="card-top">
-                  <span className="card-title">Total Interceptions</span>
+                  <span className="card-title">Evaluations</span>
                   <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>•••</span>
                 </div>
                 <div className="card-number" style={{ color: '#38bdf8' }}>
@@ -1448,7 +1448,7 @@ function App() {
               </div>
 
               {/* Card 3: System Health with Mon-Sat Bar Equalizer */}
-              <div className="soc-stat-card">
+              <div className="soc-stat-card telemetry-card">
                 <div className="card-top">
                   <span className="card-title">Gateway Integrity</span>
                   <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>•••</span>
@@ -1477,10 +1477,13 @@ function App() {
               </div>
 
               {/* Card 4: Recent Security Incidents List */}
-              <div className="soc-stat-card">
+              <div className="soc-stat-card incident-card">
                 <div className="card-top">
-                  <span className="card-title">Recent Incidents</span>
-                  <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>•••</span>
+                  <div>
+                    <span className="card-title">Active incident queue</span>
+                    <div className="incident-card-context">Blocked and escalated actions requiring attention</div>
+                  </div>
+                  <span className="incident-count-pill">{recentIncidents.length}</span>
                 </div>
                 <div className="incident-list-box">
                   {recentIncidents.length === 0 ? (
@@ -1501,8 +1504,8 @@ function App() {
                         <div className="incident-item-left">
                           <span>{inc.decision === 'BLOCK' ? '🛑' : '⏸️'}</span>
                           <div style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            <strong style={{ fontSize: 11 }}>{inc.reasons?.[0] || `${inc.tool}() suspended`}</strong>
-                            <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                            <strong>{inc.reasons?.[0] || `${inc.tool}() suspended`}</strong>
+                            <div className="incident-meta">
                               {inc.agent_id} • {inc.timestamp ? new Date(inc.timestamp).toLocaleTimeString() : 'Just now'}
                             </div>
                           </div>

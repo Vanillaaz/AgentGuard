@@ -16,6 +16,9 @@ global:
   - salary_keywords
   tools_requiring_approval:
   - delete_record
+  - make_payment
+  - send_email
+  - query_database
   bulk_record_limit: 100
 agents:
   finance-agent:

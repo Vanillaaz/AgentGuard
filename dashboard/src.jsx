@@ -1345,7 +1345,7 @@ function App() {
             <div className="overview-heading-row">
               <div className="overview-heading">
                 <div className="command-eyebrow"><span className="command-pulse" /> Live control surface</div>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800 }}>
+                <h2 className="command-title">
                   Agent security, in context
                 </h2>
                 <div className="overview-subtitle">
@@ -1379,6 +1379,64 @@ function App() {
               </div>
             </div>
 
+            <section className="command-deck" aria-label="AgentGuard live command deck">
+              <div className="deck-orbit-panel">
+                <div className="deck-panel-kicker">Gateway state</div>
+                <div className="orbit-stage" aria-hidden="true">
+                  <span className="orbit-ring orbit-ring-one" />
+                  <span className="orbit-ring orbit-ring-two" />
+                  <span className="orbit-ring orbit-ring-three" />
+                  <span className="orbit-node orbit-node-one" />
+                  <span className="orbit-node orbit-node-two" />
+                  <span className="orbit-node orbit-node-three" />
+                  <div className={`orbit-core ${chainVerify.valid ? 'is-healthy' : 'is-alert'}`}>
+                    <Icons.Shield />
+                    <span>{chainVerify.valid ? 'GUARDING' : 'VERIFY'}</span>
+                  </div>
+                </div>
+                <div className="orbit-caption">
+                  <span className="pulse-dot" />
+                  {wsConnected ? 'Live policy enforcement' : 'Reconnecting to gateway'}
+                </div>
+              </div>
+
+              <div className="deck-feed-panel">
+                <div className="deck-feed-head">
+                  <div>
+                    <div className="deck-panel-kicker">Decision stream</div>
+                    <strong>What AgentGuard decided</strong>
+                  </div>
+                  <button className="deck-text-button" onClick={() => setActiveNav('trust_chain')}>View ledger ↗</button>
+                </div>
+                <div className="deck-stream">
+                  {events.slice(0, 4).map((event, index) => (
+                    <button key={event.id || event.event_id || index} className={`deck-event ${event.decision?.toLowerCase() || 'allow'}`} onClick={() => setSelectedEvent(event)}>
+                      <span className="deck-event-dot" />
+                      <span className="deck-event-copy">
+                        <strong>{event.tool?.replace('_', ' ') || 'Awaiting first action'}</strong>
+                        <small>{event.agent_id || 'gateway'} · {event.reasons?.[0] || event.decision || 'No policy findings'}</small>
+                      </span>
+                      <span className="deck-event-status">{event.decision}</span>
+                    </button>
+                  ))}
+                  {events.length === 0 && <div className="deck-empty-state">Run a safe call or an attack simulation to watch decisions move through the gateway.</div>}
+                </div>
+              </div>
+
+              <div className="deck-metrics-panel">
+                <div className="deck-panel-kicker">Security signal</div>
+                <div className="deck-score-row">
+                  <span className="deck-score">{postureScore}</span><span>/1000</span>
+                </div>
+                <div className="deck-meter"><span style={{ width: `${postureScore / 10}%` }} /></div>
+                <div className="deck-metric-list">
+                  <div><span>Exceptions</span><strong>{stats.blocked + stats.escalated}</strong></div>
+                  <div><span>Awaiting review</span><strong>{approvals.length}</strong></div>
+                  <div><span>Integrity</span><strong>{chainVerify.valid ? 'sealed' : 'check'}</strong></div>
+                </div>
+              </div>
+            </section>
+
             {/* Row 1: 4 Key Telemetry Cards */}
             <div className="soc-overview-grid">
               {/* Card 1: Threat Detection with Red Area Sparkline */}
@@ -1387,7 +1445,7 @@ function App() {
                   <span className="card-title">Blocked threats</span>
                   <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>•••</span>
                 </div>
-                <div className="card-number" style={{ color: '#f43f5e' }}>
+                <div className="card-number" style={{ color: '#e56d5d' }}>
                   {stats.blocked}
                 </div>
                 <div className="card-subtext">Policy violations stopped by the gateway</div>
@@ -1419,7 +1477,7 @@ function App() {
                   <span className="card-title">Evaluations</span>
                   <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>•••</span>
                 </div>
-                <div className="card-number" style={{ color: '#38bdf8' }}>
+                <div className="card-number" style={{ color: '#d8aa58' }}>
                   {stats.total}
                 </div>
                 <div className="card-subtext">Verified gateway tool evaluations</div>
@@ -1454,7 +1512,7 @@ function App() {
                   <span className="card-title">Gateway Integrity</span>
                   <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>•••</span>
                 </div>
-                <div className="card-number" style={{ color: chainVerify.valid ? '#10b981' : '#f43f5e' }}>
+                <div className="card-number" style={{ color: chainVerify.valid ? '#7fb38a' : '#e56d5d' }}>
                   {chainVerify.valid ? '100%' : 'ALERT'}
                 </div>
                 <div className="card-subtext">
@@ -1468,7 +1526,7 @@ function App() {
                         className="health-bar-pill"
                         style={{
                           height: b.pct,
-                          background: b.count > 0 ? (chainVerify.valid ? '#10b981' : '#f59e0b') : 'rgba(255,255,255,0.1)',
+                          background: b.count > 0 ? (chainVerify.valid ? '#7fb38a' : '#d8aa58') : 'rgba(255,255,255,0.1)',
                         }}
                       />
                       <span className="health-bar-label">{b.name}</span>
